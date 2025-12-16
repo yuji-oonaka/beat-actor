@@ -7,19 +7,24 @@ export const getPhaseMessage = (phaseIndex: number, type: PhaseType): string[] =
         "この音に、リズムを合わせてください", 
         "カン……　カン……"
       ];
-    case 1: // Guide
+    case 1: // Mesh (NEW)
       return [
-        "では、足音（ガイド）を足します", 
-        "実は、カンは「裏」でした",
-        "（ウン）カン　（ウン）カン"
+        "隙間を埋めていきます", 
+        "チ・カ・チ・カ……"
       ];
-    case 2: // Core
+    case 2: // Guide
+      return [
+        "「チ」が表、「カ」が裏です", 
+        "足音（表）を感じて……",
+        "（チ）カン　（チ）カン"
+      ];
+    case 3: // Core
       return [
         "ガイドを消します", 
-        "「裏」のまま維持できますか？",
+        "「チ」を心の中で鳴らし続けて",
         "自分の中に「1」を作ってください"
       ];
-    case 3: // Return
+    case 4: // Return
       return [
         "拍は、あなたのものです"
       ];

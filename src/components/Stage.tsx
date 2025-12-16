@@ -5,7 +5,7 @@ interface StageProps {
   isPlaying: boolean;
   phaseIndex: number;
   phaseType: PhaseType;
-  displayBeat: number; // 追加
+  displayBeat: number;
   onStart: () => void;
   onStop: () => void;
 }
@@ -20,9 +20,11 @@ export const Stage = ({
 }: StageProps) => {
   const messages = getPhaseMessage(phaseIndex, phaseType);
 
-  // ガイドを表示するかどうかの判定
-  // 今回のチュートリアルでは Phase 1 (Guide) と Phase 3 (Return) でガイド音が出る
-  const showGuide = isPlaying && (phaseIndex === 1 || phaseIndex === 3);
+  // ガイド数字を出すのは Phase 2 (Guide) と Phase 4 (Return) のみ
+  // Phase 1 (Mesh) は音だけで馴染ませる
+  const showGuide = isPlaying && (phaseIndex === 2 || phaseIndex === 4);
+
+  // ... (以下、変更なし) ...
 
   if (!isPlaying) {
     return (
@@ -47,8 +49,7 @@ export const Stage = ({
 
   return (
     <div className="flex flex-col items-center justify-center h-full relative">
-      {/* ビジュアルガイド（数字） */}
-      {/* showGuideがTrueの時だけ、巨大な数字を出す */}
+      {/* ビジュアルガイド */}
       <div className="h-40 flex items-center justify-center">
         {showGuide ? (
           <div
@@ -58,7 +59,6 @@ export const Stage = ({
             {displayBeat}
           </div>
         ) : (
-          /* ガイドがない時は、ただのアンカー（点）を表示 */
           <div className="w-1 h-1 bg-white/20 rounded-full" />
         )}
       </div>
