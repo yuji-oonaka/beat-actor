@@ -19,12 +19,7 @@ export const Stage = ({
   onStop,
 }: StageProps) => {
   const messages = getPhaseMessage(phaseIndex, phaseType);
-
-  // ガイド数字を出すのは Phase 2 (Guide) と Phase 4 (Return) のみ
-  // Phase 1 (Mesh) は音だけで馴染ませる
   const showGuide = isPlaying && (phaseIndex === 2 || phaseIndex === 4);
-
-  // ... (以下、変更なし) ...
 
   if (!isPlaying) {
     return (
@@ -37,6 +32,8 @@ export const Stage = ({
             CLICK NOTATION IS DEAD
           </p>
         </div>
+
+        {/* 注意書きは削除し、ボタンのみシンプルに配置 */}
         <button
           onClick={onStart}
           className="px-12 py-4 border border-white/20 hover:border-white/80 hover:bg-white/5 transition-all duration-500 tracking-[0.2em] text-sm uppercase"
@@ -49,7 +46,6 @@ export const Stage = ({
 
   return (
     <div className="flex flex-col items-center justify-center h-full relative">
-      {/* ビジュアルガイド */}
       <div className="h-40 flex items-center justify-center">
         {showGuide ? (
           <div
@@ -63,7 +59,6 @@ export const Stage = ({
         )}
       </div>
 
-      {/* メッセージ表示エリア */}
       <div className="h-32 flex flex-col items-center justify-center space-y-4 text-center mt-12">
         {messages.map((msg, i) => (
           <p

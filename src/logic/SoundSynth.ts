@@ -5,12 +5,38 @@ export class SoundSynth {
 
   public init() {
     if (!this.ctx) {
+      // Safari (iPhone) 用のベンダープレフィックス対応
       const AudioContextClass =
         window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioContextClass();
     }
+
+    // iOS対策: コンテキストがサスペンド（一時停止）していたら再開させる
     if (this.ctx.state === "suspended") {
       this.ctx.resume();
+    }
+
+    // ★ここが最重要：iOSのオーディオロックを解除する儀式
+    this.unlockAudio();
+  }
+
+  // 無音を一瞬だけ再生して、iOSに「ユーザーの意志で再生した」と認識させる
+  private unlockAudio() {
+    if (!this.ctx) return;
+    
+    // 1サンプルだけの空のバッファを作成
+    const buffer = this.ctx.createBuffer(1, 1, 22050);
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    
+    source.connect(this.ctx.destination);
+    
+    // 即座に再生
+    if (source.start) {
+      source.start(0);
+    } else if ((source as any).noteOn) {
+      // 古いiOS対応
+      (source as any).noteOn(0);
     }
   }
 
@@ -18,7 +44,7 @@ export class SoundSynth {
     return this.ctx ? this.ctx.currentTime : 0;
   }
 
-  // 踏切音：裏拍（音量を下げ、少しこもらせる）
+  // 踏切音
   public playFumikiri(time: number) {
     if (!this.ctx) return;
 
@@ -36,8 +62,8 @@ export class SoundSynth {
     osc1.frequency.value = 700;
     osc2.frequency.value = 1000;
 
-    // 音量: 0.1 -> 0.03 (かなり控えめに)
-    gain.gain.setValueAtTime(0.03, time);
+    // スマホのスピーカーでも聞こえるよう音量を確保 (0.1)
+    gain.gain.setValueAtTime(0.1, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
 
     osc1.start(time);
@@ -46,7 +72,7 @@ export class SoundSynth {
     osc2.stop(time + 0.5);
   }
 
-  // クリック音：表拍（音量を上げ、鋭くする）
+  // クリック音
   public playClick(time: number, isAccent: boolean) {
     if (!this.ctx) return;
 
@@ -56,15 +82,11 @@ export class SoundSynth {
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
-    // 波形を「sawtooth（ノコギリ波）」にして鋭さを出す
     osc.type = "sawtooth";
-    
-    // ピッチを高くして突き刺す音に
     osc.frequency.value = isAccent ? 1500 : 1000;
 
-    // 音量: 0.05 -> 0.2 (大幅アップ)
-    // 鋭く立ち上がり、すぐに切れる（歯切れよく）
-    gain.gain.setValueAtTime(0.2, time);
+    // クリック音もしっかり聞こえる音量に (0.3)
+    gain.gain.setValueAtTime(0.3, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
 
     osc.start(time);
